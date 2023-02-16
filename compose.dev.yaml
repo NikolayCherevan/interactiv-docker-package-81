@@ -1,0 +1,45 @@
+## FROM NIK:
+## app -> mapping folders from src directory to app container
+## phpfpm, node, phpmyadmin -> init references and dependencies
+##  (for example, when you build static with gulp command - dynamic files will
+##  move in theme folder and you can commit it from src dir)
+version: "3"
+
+services:
+  app:
+    volumes: &appvolumes
+      ## Host mounts with performance penalty, only put what is necessary here
+      - ./src/magento/app:/var/www/html/magento/app:cached
+      - ./src/magento/composer.json:/var/www/html/magento/composer.json:cached
+      - ./src/magento/composer.lock:/var/www/html/magento/composer.lock:cached
+      - ./src/magento/lib/internal/Interactiv4:/var/www/html/magento/lib/internal/Interactiv4:cached
+      - ./src/magento/pub/errors:/var/www/html/magento/pub/errors:cached
+      - ./src/repo:/var/www/html/repo:cached
+      - ./src/composer.json:/var/www/html/composer.json:cached
+      - ./src/composer.lock:/var/www/html/composer.lock:cached
+      - ./src/auth.json:/var/www/html/auth.json:cached
+      #- ./src/magento/grunt-config.json:/var/www/html/grunt-config.json:cached
+      #- ./src/magento/Gruntfile.js:/var/www/html/Gruntfile.js:cached
+      #- ./src/magento/dev/tools/grunt/configs:/var/www/html/dev/tools/grunt/configs:cached
+      - ./nginx.conf:/var/www/html/nginx.conf:cached
+      #- ./src/magento/package.json:/var/www/html/package.json:cached
+      #- ./src/auth.json:/var/www/html/auth.json:cached
+      #- ./src/m2-hotfixes:/var/www/html/m2-hotfixes:cached
+      #- ./src/patches:/var/www/html/patches:cached
+      #- ./src/var/log:/var/www/html/var/log:cached
+      #- ./src/var/report:/var/www/html/var/report:cached
+      #- ./src:/var/www/html:cached
+
+  phpfpm:
+    volumes: *appvolumes
+
+  node:
+    volumes: *appvolumes
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    env_file: env/db.env
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
